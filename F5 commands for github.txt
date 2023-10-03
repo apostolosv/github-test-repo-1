@@ -1,0 +1,398 @@
+ 
+#Ping in route domain 20
+ rdexec 20 ping 172.27.166.3
+
+#if IAPP menu is missing (replace host with actual IP)
+https://host/tmui/Control/jspmap/tmui/application/list.jsp
+https://host/tmui/Control/jspmap/tmui/application_template/list.jsp
+
+#Running the below will not create any impact or make changes, its just listing to know which is having recent configuration.
+
+tmsh  show cm sync-status
+
+tmsh run cm watch-devicegroup-device
+
+
+#Change admin password via tmos
+modify auth user admin prompt-for-password
+
+#top explained
+https://support.f5.com/csp/article/K16739
+
+
+#to view configuration depending on module (below to see the virtual server named wwwWEB_VS80_WA_ASM_enabled_for_https  or the ddos profile API_DDoS configuration)
+list ltm virtual wwwWEB_VS80_WA_ASM_enabled_for_https
+list security dos profile API_DDoS
+
+#To verify that the configuration is OK and nothing is missing
+load sys config from-terminal merge verify
+
+#After verification the following to import the configuration
+load sys config from-terminal merge 
+
+
+#check md5 of iso image (bash)
+md5sum /shared/images/BIGIP-13.1.0.5-0.0.5.iso
+
+#display arp (tmsh)
+show net arp
+show net arp any%12 (tmsh for route domain12)
+
+arp -na
+
+#NEW_MyWind_WA-OUT_VS
+#ADD SELF IP
+
+
+login to device
+tmsh
+list net  self address		(to find relevant interfaces) (from gui path is Network-->Self IPs)
+
+---
+create net self Self-ASM-IN-2 address 172.27.167.2%20/27 vlan ASM-IN traffic-group traffic-group-local-only 
+
+DELETE  SELF IP
+delete net self Self-ASM-IN-2
+
+ADD FLOATING IP
+create net self Self-ASM-IN-2 address 172.27.167.2%20/27 vlan ASM-IN traffic-group traffic-group-1
+
+
+#Show n lines below match string ( in our case shows 4 lines  after finding Curre --- -B shows 4 lines before Curre)
+show ltm virtual Central_http_vs | grep -A 4 -B 4 -i "Curre"
+
+
+egrep yncoo /etc/alertd/* --color
+
+
+tmsh show running-config
+
+tmsh show /net route
+
+
+#TCPDUMP in host (not tmsh) to search for IP 10.60.4.14 (0.0 means everything - all interfaces all vlans)
+tcpdump -envpi 0.0 host 10.60.4.14 -s0
+tcpdump -envpi 0.0:p host 10.60.4.14 -s0 (:p peer side shows client and server side - useful if source nat is used)
+
+#DISPLAY LTM logs
+tailf /var/log/ltm
+
+
+show sys software
+
+#install software iso image BIGIP-13.1.0.6-0.0.0.3 in new volume HD1.4
+install sys software image BIGIP-13.1.0.6-0.0.0.3.iso create-volume volume HD1.4
+
+#delete software and boot location HD1.4
+delete sys software volume HD1.4
+
+#view logs if upgrade fails
+tail -f /var/log/liveinstall.log
+
+#tcpdump for icmp in any interface
+tcpdump -i any icmp
+
+
+tcpdump -nvpi 0.0 host 192.168.240.17 and host 172.22.1.22 and port 10011 or host 192.168.240.16 and host 172.22.1.22 and port 10011 -s0 -w /tmp/BEA_Capture.pcap
+
+#curl command in bash
+curl http://xxx.xxx.gr
+
+#curl with proxy (proxy is 192.168.201.41 in port 8080)
+curl -x 192.168.201.41:8080 -kI https://wport
+
+#curl with command other than GET andd specific http version  (POST in our example and http 1.0)
+curl -X POST --http1.0  192.168.201.41:8080 
+
+#the following curl and time command attempts to transfer data from the web server while timing the response:
+ time curl http://10.10.65.1
+
+#If you want to test a specific HTTP request, including HTTP headers, you can use the telnet command to connect to the pool member
+telnet <serverIP> <serverPort>
+
+At the prompt, enter an appropriate HTTP request line and HTTP headers, pressing Enter once after each line.
+
+For example:
+
+GET / HTTP/1.1 <enter>
+Host: www.yoursite.com <enter>
+Connection: close <enter>
+<enter>
+
+
+#check virtual server (192.168.133.233) or node for ssl cipher etc
+openssl s_client -connect 192.168.133.232:443
+
+
+# check routing
+To view existing management routes
+tmsh list /sys management-route
+
+To view all existing TMM routes
+tmsh show /net route
+
+To view all existing routes in the Linux kernel routing table (The management interface is represented by the netstat command as eth0)
+netstat -rn
+
+To view routes in the routing table, main
+ip route show table main
+
+To view the management routing table routes (table 245
+ip route show table 245
+
+#tcpdump from pylones to client -s0 is to show full packet
+tcpdump -nnnvvepi 0.0 src host 62.169.200.202 and dst host 10.0.1.122 and port 22 -s0
+
+#test active directory credentials. in our case domain is pylones.local and user is avassiliou
+adtest -t auth -r "pylones.local" -h "192.168.132.17" -u avassiliou
+
+
+# find largest files in /var ( in our example)
+find  /var/ -xdev -type f | xargs du | sort -rn | head -20
+
+#check ntp status
+ntpq -np
+
+# find license service date
+grep "Service check date" /config/bigip.license
+tmsh show sys license | grep "Licensed On\|Service Check Date"
+
+#chanhe the text that is printed in ltm logs to 4096
+ modify sys db tmm.maxremoteloglength value 4096
+ 
+
+#Using tmsh to take a system offline
+#To take a system offline, type the following command:
+run /sys failover offline
+
+#To bring a system online, type the following command:
+run /sys failover online
+
+
+
+#If you want to know which processes are swapping you can launch this command :
+
+for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r | less
+
+https://support.f5.com/csp/article/K13444 --> know what is the function of each process
+
+#sends image to 192.168.120.201 via scp 
+scp -r /shared/images/BIGIP-13.1.1.5-0.0.4.iso root@192.168.120.201:/shared/images/
+
+#An orphaned tmsh process will have a parent pid (PPID) of 1. You can check for orphaned tmsh processes using the following shell command:
+
+/bin/ps -o pid,ppid,comm -C tmsh
+
+##PID  PPID COMMAND
+##8255  1 tmsh
+
+
+### ssldump a pcap file
+ssldump -nr tolis.pcap
+
+## test with opennssl
+openssl  s_client -connect 192.168.133.247:443
+
+## check available disk space
+df -h
+
+
+##SSL decryption
+https://support.f5.com/csp/article/K12783074
+
+apply the below irule to virtual server
+save tcpdump to file
+run the following commnd
+sed -e 's/^.*\(RSA Session-ID\)/\1/;tx;d;:x' /var/log/ltm > /var/tmp/LDAPS__sessionsecrets.pms
+Import the LDAPS__sessionsecrets.pms to wireshark (preference-->SSL or TLS depending on version)
+
+when CLIENTSSL_HANDSHAKE {
+    log local0. "[TCP::client_port] :: RSA Session-ID:[SSL::sessionid] Master-Key:[SSL::sessionsecret]"
+}
+
+
+
+#Check the /var partition for folders containing a large number of small files.  
+#The following command syntax will return a list of the 20 largest folders :
+
+du -ha /var | sort -rn | grep -Ev $(mount | grep "/var/" | awk '{print $3}' | sed -e :a -e N -e 's/\n/|/' -e ta) | head -n 20
+
+#Check for large files in the /var partition.  The following command syntax displays the 20 largest files/folders, 
+#excluding files/folders that are expected to be large:
+
+find /var/ -xdev -type f -exec du {} \; | sort -rn | grep -Ev $(mount | grep "/var/" | awk '{print $3}' | sed -e :a -e N -e 's/\n/|/' -e ta) | head -20  
+
+#to search for a file. The following is searching in var and sub directories for everything endind in .yaml
+ find /var/ -name "*.yaml"
+
+
+#Re-label the file systems and reboot the BIG-IP system to allow the BIG-IP system to rebuild the appropriate file permissions. To do so, perform the following procedure:
+touch /.autorelabel
+#after reboot device 
+full-box-reboot
+
+#to reset the log.bcm56xxd.level BigDB key value to its default value, enter the following command:
+tmsh modify sys db log.bcm56xxd.level reset-to-default
+
+#To have files greater than 5 MB in qkview και το output θα βρισκεται στο παρακατω path /var/tmp as <hostname>.qkview.
+qkview -s0
+
+#To tar in /var/tmp all the logs in /var/log
+tar zcvf /var/tmp/$HOSTNAME-logs.tar.gz /var/log/*
+
+#to find the master key
+f5mku -K
+
+#to change the master key
+f5mku -r <new master key>
+example
+f5mku -r oruIVCHfmVBnwGaSR/+MAA==
+-----------------------------------------------------
+# Download mib file ( mibs_f5.tar.gz) from f5 site
+ Finf appropriate mib (e.g  from file F5-BIGIP-LOCAL-MIB and ltmPoolStatus )
+  
+ [root@APL-LAB:Active:Standalone] config # snmptranslate -On F5-BIGIP-LOCAL-MIB::ltmPools 5
+.1.3.6.1.4.1.3375.2.2.5
+
+.5
+
+and the run the following command
+
+[root@APL-LAB:Active:Standalone] config # snmpwalk -On -v2c -c public localhost .1.3.6.1.4.1.3375.2.2.5.5
+.1.3.6.1.4.1.3375.2.2.5.5.1.0 = INTEGER: 2
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.1.17.47.67.111.109.109.111.110.47.116.101.115.116.45.112.111.111.108 = STRING: /Common/test-pool
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.1.22.47.67.111.109.109.111.110.47.49.57.50.46.49.54.56.46.49.51.50.46.49.57 = STRING: /Common/192.168.132.19
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.2.17.47.67.111.109.109.111.110.47.116.101.115.116.45.112.111.111.108 = INTEGER: green(1)
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.2.22.47.67.111.109.109.111.110.47.49.57.50.46.49.54.56.46.49.51.50.46.49.57 = INTEGER: green(1)
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.3.17.47.67.111.109.109.111.110.47.116.101.115.116.45.112.111.111.108 = INTEGER: enabled(1)
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.3.22.47.67.111.109.109.111.110.47.49.57.50.46.49.54.56.46.49.51.50.46.49.57 = INTEGER: enabled(1)
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.4.17.47.67.111.109.109.111.110.47.116.101.115.116.45.112.111.111.108 = Gauge32: 0
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.4.22.47.67.111.109.109.111.110.47.49.57.50.46.49.54.56.46.49.51.50.46.49.57 = Gauge32: 0
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.5.17.47.67.111.109.109.111.110.47.116.101.115.116.45.112.111.111.108 = STRING: The pool is available
+.1.3.6.1.4.1.3375.2.2.5.5.2.1.5.22.47.67.111.109.109.111.110.47.49.57.50.46.49.54.56.46.49.51.50.46.49.57 = STRING: The pool is available
+[root@APL-LAB:Active:Standalone] config #
+---------------------------------------------------------------
+
+
+
+#shutdown mgmt interface from console or tmsh
+ifconfig mgmt down
+ifconfig mgmt up
+
+modify net interface mgmt enabled
+modify net interface mgmt disabled
+
+---------------------------------------------------------------
+
+tcpdump using the -A option (Print each packet (minus its link level header) in ASCII.)
+
+tcpdump -A -nnvpi 0.0 host 172.17.3.22 and port 5557 | egrep "(CONNECT |Connected)"
+
+---------------------------------------------------------------
+
+find my ip through curl 
+
+curl api.ipify.org
+
+---------------------------------------------------------------
+
+
+
+Understand DoS    
+https://www.slideshare.net/liorrotkovitch/f5-asm-v12-ddos-best-practices
+
+
+---------------------------------------------------------------
+list ltm data-group internal | grep -i '\<ltm data-group internal\>' '\<10.234.21.9\>' '\<10.234.21.10\>' '\<10.234.21.11\>'
+list ltm rule | grep -i '\<ltm rule\>' '\<QA-ESB-Extranet\>'
+
+list ltm virtual | grep -i '\<ltm virtual\>' '\<WebApp-Extr-Prod\>' '\<destination\>'
+
+
+list ltm virtual | grep -i '\<ltm virtual\>' '\<iRULENAME\>'
+list ltm virtual | grep -i '\<ltm virtual\>' '\<ip-protocol\>'
+list ltm virtual | grep -i '\<ltm virtual\>' '\<SSLPROFILE\>'
+list ltm virtual | grep -i '\<ltm virtual\>' '\<HTTPPROFILE\>'
+list ltm virtual | grep -i '\<ltm virtual\>' '\<PERSISTENCE\>'
+list ltm virtual | grep -i '\<ltm virtual\>' '\<Compression\>'
+list ltm rule  | grep -i '\<ltm rule\>' '\<POOLNAME\>'
+list ltm rule | grep -i '\<ltm rule\>' '\<DATAGROUPNAME\>'
+
+---------------------------------------------------------------
+
+
+RGJLJ-DNCVU-XSIXC-EMSRU-WTYVAPA			used on F5 in my workstation
+COIOH-JAONZ-OLAYP-SEOEM-OMZNUSJ			EULISA test
+HTDKJ-UQZWZ-MIHVI-TXAPS-HFZBQTJ			EULISA test ver 16 activated
+PQGHQ-HCDNA-JMUDY-VQVZV-LPZMEDS
+
+
+f5.com/trial
+
+20/5/2022
+BIG-IP Registration key(s):start date 18 May 2022 for 30 days
+YSTCZ-OTPGG-QCHGO-QOMWI-VIBPMTZ (BIG-IP VE Trial)	used on F5 test  in lab esxi
+WMQVM-NXMLR-ARYTV-VMJJA-SPMPAWH (BIG-IP VE Trial)	used in my ASM test F5 (workstation vm)
+QYRSC-TGRAP-XTSRG-XQUDR-AUESZDA (BIG-IP VE Trial)	kameno
+
+30/6/2022
+RGMVB-GIKDY-HTTJJ-XMNCG-IELRQJG (BIG-IP VE Trial) used in my ASM test F5 (workstation vm)
+UKECT-ZBTFM-MHNEJ-REUOC-IJETXSG (BIG-IP VE Trial)	kameno
+BUVLN-ESKQT-YIFUS-TCJWK-DVEGKUH (BIG-IP VE Trial)	172.16.123.33
+
+------------------------------------------------------------------------------------------------
+# This simple rule logs all HTTP headers in requests and responses to /var/log/ltm. This can be helpful in troubleshooting
+#https://community.f5.com/t5/codeshare/log-http-headers/ta-p/284017
+
+
+when HTTP_REQUEST {
+   set LogString "Client [IP::client_addr]:[TCP::client_port] -> [HTTP::host][HTTP::uri]"
+   log local0. "============================================="
+   log local0. "$LogString (request)"
+   foreach aHeader [HTTP::header names] {
+      log local0. "$aHeader: [HTTP::header value $aHeader]"
+   }
+   log local0. "============================================="
+}
+when HTTP_RESPONSE {
+   log local0. "============================================="
+   log local0. "$LogString (response) - status: [HTTP::status]"
+   foreach aHeader [HTTP::header names] {
+      log local0. "$aHeader: [HTTP::header value $aHeader]"
+   }
+   log local0. "============================================="   
+}
+------------------------------------------------------------------------------------------------
+
+#To check certificates expire date on vs 10.10.10.10
+
+curl -kvi https://10.10.10.10/fvfdv
+
+------------------------------------------------------------------------------------------------
+# to grep multiple patterns and before or after them ( in below we find address and one line above and also fqdn and 2 lines below)
+
+tmsh list ltm pool to-delete-pool | grep  -e address -B 1 -e fqdn -A 2
+------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+#SNMP translate OID to/from name
+
+[root@bigip2:Active:Changes Pending] config # snmptranslate .1.3.6.1.4.1.3375.2.2.10.2.3.1.11
+F5-BIGIP-LOCAL-MIB::ltmVirtualServStatClientTotConns
+
+#Also if you have the name and want the OID
+[root@bigip2:Active:Changes Pending] config #snmptranslate -On F5-BIGIP-SYSTEM-MIB::sysInterfaceName
+.1.3.6.1.4.1.3375.2.1.2.4.1.2.1.1
+-------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+#to see the permitted version range for your BIG-IP VE system
+#https://support.f5.com/csp/article/K42091606
+#https://support.f5.com/csp/article/K15643
+grep Exclusive_version /config/bigip.license
+--------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------
+#How create specific OID ( e.g. to take statistics only from specific server)
+#https://ccie-or-null.net/2014/01/06/poll-individual-virtual-server-statistics-on-f5-ltms-using-snmp/
+------------------------------------------------------------------------------------------------------
